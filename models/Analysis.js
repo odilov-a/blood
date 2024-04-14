@@ -9,6 +9,10 @@ const analysisSchame = new mongoose.Schema(
       type: String,
       required: true,
     },
+    analysisType: {
+      type: String,
+      required: true,
+    },
     fileUrl: {
       type: Array, 
       required: true,

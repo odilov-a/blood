@@ -39,9 +39,6 @@ exports.getAnalysisById = async (req, res) => {
 
 exports.createAnalysis = async (req, res) => {
   try {
-    if (!req.file || !req.body.number) {
-      return res.status(400).json({ error: "File and number are required" });
-    }
     const existingAnalysis = await Analysis.findOne({ number: req.body.number });
     if (existingAnalysis) {
       return res.status(400).json({ error: "Number must be unique" });
@@ -49,6 +46,7 @@ exports.createAnalysis = async (req, res) => {
     const newAnalysis = await Analysis.create({
       number: req.body.number,
       name: req.body.name,
+      analysisType: req.body.analysisType,
       fileUrl: process.cwd() + "/files/" + req.file.filename,
     });
     return res.json({ data: newAnalysis });
@@ -64,11 +62,9 @@ exports.updateAnalysis = async (req, res) => {
     if (!oldAnalysis) {
       return res.status(404).json({ message: "Analysis not found" });
     }
-    if (!req.file) {
-      return res.status(400).json({ error: "File is required" });
-    }
     oldAnalysis.number = req.body.number;
     oldAnalysis.name = req.body.name;
+    oldAnalysis.analysisType = req.body.analysisType;
     const files = oldAnalysis.fileUrl;
     files.push(process.cwd() + "/files/" + req.file.filename);
     oldAnalysis.fileUrl = files;
