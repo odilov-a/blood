@@ -10,6 +10,10 @@ exports.getAllAnalysis = async (req, res) => {
         .skip((page - 1) * perPage)
         .limit(perPage),
     ]);
+    const result = allAnalysis.forEach((analysis) => {
+      analysis.fileLink = `${process.cwd()}/${analysis.fileUrl}`
+    })
+    console.log(result);
     const totalPages = Math.ceil(totalAnalysis / perPage);
     if (allAnalysis.length === 0) {
       return res.status(404).json({ data: [] });
@@ -47,7 +51,7 @@ exports.createAnalysis = async (req, res) => {
       number: req.body.number,
       name: req.body.name,
       analysisType: req.body.analysisType,
-      fileUrl: process.cwd() + "/files/" + req.file.filename,
+      fileUrl: "./files/" + req.file.filename,
     });
     return res.json({ data: newAnalysis });
   } catch (err) {
@@ -66,7 +70,7 @@ exports.updateAnalysis = async (req, res) => {
     oldAnalysis.name = req.body.name;
     oldAnalysis.analysisType = req.body.analysisType;
     const files = oldAnalysis.fileUrl;
-    files.push(process.cwd() + "/files/" + req.file.filename);
+    files.push("./files/" + req.file.filename,);
     oldAnalysis.fileUrl = files;
     await oldAnalysis.save();
     return res.json({ data: oldAnalysis });

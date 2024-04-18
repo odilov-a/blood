@@ -1,259 +1,232 @@
-
-// console.log("Bot is starting...");
+// require("dotenv").config();
+// console.log("bot is working...");
 // const TelegramBot = require("node-telegram-bot-api");
 // const axios = require("axios");
 // const token = process.env.BOOLD_BOT_TOKEN;
 // const bot = new TelegramBot(token, { polling: true });
-// const API_BASE_URL = process.env.API_URL;
 
-// async function fetchNewsFromApi() {
-//   try {
-//     const response = await axios.get(`${API_BASE_URL}/news`);
-//     return response.data;
-//   } catch (error) {
-//     console.error("Error fetching news from API:", error);
-//     throw error;
-//   }
-// }
-
-// async function fetchClinicsFromApi() {
-//   try {
-//     const response = await axios.get(`${API_BASE_URL}/clinics`);
-//     return response.data;
-//   } catch (error) {
-//     console.error("Error fetching news from API:", error);
-//     throw error;
-//   }
-// }
-
-// async function fetchDoctorsFromApi() {
-//   try {
-//     const response = await axios.get(`${API_BASE_URL}/doctors`);
-//     return response.data;
-//   } catch (error) {
-//     console.error("Error fetching news from API:", error);
-//     throw error;
-//   }
-// }
-
-// async function fetchAnalysisFromApi() {
-//   try {
-//     const response = await axios.get(`${API_BASE_URL}/analysis`);
-//     return response.data;
-//   } catch (error) {
-//     console.error("Error fetching analysis from API:", error);
-//     throw error;
-//   }
-// }
-
-// bot.onText(/\/start/, async (msg) => {
-//   const chatId = msg.chat.id;
-//   try {
-//     const name = msg.chat.first_name;
-//     const options = {
-//       parse_mode: "HTML",
-//       reply_markup: {
-//         keyboard: [
-//           ["Analysis", "Doctors"],
-//           ["Clinics", "News"],
-//         ],
-//         resize_keyboard: true,
-//         one_time_keyboard: true,
-//       },
-//     };
-//     bot.sendMessage(chatId, `<b>${name}</b>, welcome to the bot! Please select an option from the main menu:`, options);
-//   } catch (error) {
-//     console.error("Error sending message:", error);
-//     bot.sendMessage(chatId, "Error sending message. Please try again later.");
-//   }
+// start
+// bot.onText(/\/start/, (msg) => {
+//   const opts = {
+//     reply_markup: {
+//       keyboard: [["🔬 Analysis"]],
+//       resize_keyboard: true,
+//       one_time_keyboard: true,
+//     },
+//   };
+//   bot.sendMessage(msg.chat.id, "Welcome", opts);
 // });
 
-// bot.onText(/analysis/, async (msg) => {
-//   const chatId = msg.chat.id;
-//   try {
-//     await bot.sendMessage(
-//       chatId,
-//       "Please share your contact to retrieve the analysis data.",
-//       {
+
+// bot.sendDocument(msg.chat.id, userAnalysis.fileUrl[0], {
+//   caption: `*👤 Name:* ${userAnalysis.name}\n*🔬Analysis type:* ${userAnalysis.analysisType}`,
+//   parse_mode: "Markdown",
+// });
+// Assuming userAnalysis is your data object
+
+// bot.onText(/\/start/, (msg) => {
+//   const opts = {
+//     reply_markup: {
+//       keyboard: [["🔬 Analysis"], ["🏥 Clinics", "📰 News"]],
+//       resize_keyboard: true,
+//       one_time_keyboard: true,
+//     },
+//   };
+//   bot.sendMessage(msg.chat.id, "Welcome", opts);
+// });
+
+// help
+// bot.onText(/\/help/, (msg) => {
+//   bot.sendMessage(msg.chat.id, "dasturchi bilan bog'lanish uchun @akbr_odlv");
+// });
+
+// clinics
+// let doctors = [];
+// bot.onText(/Clinics/, (msg) => {
+//   axios
+//     .get(`${process.env.API_URL}/clinics`)
+//     .then((response) => {
+//       const data = response.data.data;
+//       const clinics = data.map((clinic) => [clinic.name]);
+//       clinics.push(["Back to Main Menu"]);
+//       const opts = {
 //         reply_markup: {
-//           keyboard: [[{ text: "Share Contact", request_contact: true }]],
+//           keyboard: clinics,
 //           resize_keyboard: true,
 //           one_time_keyboard: true,
 //         },
-//       }
-//     );
-//   } catch (error) {
-//     console.error("Error sending message:", error);
-//     bot.sendMessage(chatId, "Error occurred. Please try again later.");
-//   }
+//       };
+//       bot.sendMessage(msg.chat.id, "Please choose a clinic", opts);
+//     })
+//     .catch((error) => {
+//       console.log(error);
+//       bot.sendMessage(msg.chat.id, "Error fetching data");
+//     });
 // });
 
-// bot.on("contact", async (msg) => {
-//   const chatId = msg.chat.id;
-//   const userPhoneNumber = msg.contact.phone_number;
-//   try {
-//     const analysisResponse = await fetchAnalysisFromApi();
-//     const analysisData = analysisResponse.data;
-//     const matchedAnalysis = analysisData.find(
-//       (item) => item.number === parseInt(userPhoneNumber)
-//     );
-//     if (matchedAnalysis) {
-//       await sendMatchedAnalysis(chatId, matchedAnalysis);
-//       await sendMainMenu(chatId);
-//     } else {
-//       await bot.sendMessage(
-//         chatId,
-//         "No matching analysis found for your phone number."
-//       );
-//       await sendMainMenu(chatId);
-//     }
-//   } catch (error) {
-//     console.error("Error fetching analysis:", error);
-//     bot.sendMessage(chatId, "Error fetching analysis. Please try again later.");
-//   }
-// });
-
-// async function sendMainMenu(chatId) {
-//   try {
-//     await bot.sendMessage(chatId, "Main Menu", {
+// bot.on("message", (msg) => {
+//   const chosenClinicName = msg.text;
+//   if (chosenClinicName === "Back to Main Menu") {
+//     bot.sendMessage(msg.chat.id, "Main Menu", {
 //       reply_markup: {
-//         keyboard: [[{ text: "analysis" }]],
+//         keyboard: [["🔬 Analysis"], ["🏥 Clinics", "📰 News"]],
 //         resize_keyboard: true,
 //         one_time_keyboard: true,
 //       },
 //     });
-//   } catch (error) {
-//     console.error("Error sending main menu:", error);
-//     bot.sendMessage(chatId, "Error sending main menu. Please try again later.");
-//   }
-// }
-
-// async function sendMatchedAnalysis(chatId, analysis) {
-//   try {
-//     const analysisMessage = `<b>${analysis.name}</b>\n${analysis.number}\n${analysis.fileUrl}\n`;
-//     const options = {
-//       parse_mode: "HTML",
-//     };
-//     await bot.sendMessage(chatId, analysisMessage, options);
-//   } catch (error) {
-//     console.error("Error sending matched analysis:", error);
-//     bot.sendMessage(chatId, "Error sending analysis. Please try again later.");
-//   }
-// }
-
-// bot.onText(/clinics/, async (msg) => {
-//   const chatId = msg.chat.id;
-//   try {
-//     const clinicsResponse = await fetchClinicsFromApi();
-//     const clinics = clinicsResponse.data;
-//     await sendClinics(chatId, clinics);
-//   } catch (error) {
-//     console.error("Error fetching clinics:", error);
-//     bot.sendMessage(chatId, "Error fetching clinics. Please try again later.");
+//   } else {
+//     const chosenDoctor = doctors.find(
+//       (doctor) => doctor.name === chosenClinicName
+//     );
+//     if (chosenDoctor) {
+//       bot.sendMessage(
+//         msg.chat.id,
+//         `Doctor information: ${JSON.stringify(chosenDoctor)}`
+//       );
+//     } else {
+//       axios
+//         .get(`${process.env.API_URL}/clinics`)
+//         .then((response) => {
+//           const chosenClinic = response.data.data.find(
+//             (clinic) => clinic.name === chosenClinicName
+//           );
+//           if (chosenClinic) {
+//             const chosenClinicId = chosenClinic._id;
+//             axios
+//               .get(`${process.env.API_URL}/doctors`)
+//               .then((response) => {
+//                 doctors = response.data.data;
+//                 const clinicDoctors = doctors.filter(
+//                   (doctor) => doctor.address === chosenClinicId
+//                 );
+//                 if (clinicDoctors.length > 0) {
+//                   const doctorNames = clinicDoctors.map((doctor) => [
+//                     doctor.name,
+//                   ]);
+//                   doctorNames.push(["Back to Main Menu"]);
+//                   const opts = {
+//                     reply_markup: {
+//                       keyboard: doctorNames,
+//                       resize_keyboard: true,
+//                       one_time_keyboard: true,
+//                     },
+//                   };
+//                   bot.sendMessage(msg.chat.id, "Please choose a doctor", opts);
+//                 } else {
+//                   bot.sendMessage(
+//                     msg.chat.id,
+//                     "No doctors found for this clinic"
+//                   );
+//                 }
+//               })
+//               .catch((error) => {
+//                 console.log(error);
+//                 bot.sendMessage(msg.chat.id, "Error fetching data");
+//               });
+//           }
+//         })
+//         .catch((error) => {
+//           console.log(error);
+//           bot.sendMessage(msg.chat.id, "Error fetching data");
+//         });
+//     }
 //   }
 // });
 
-// async function sendClinics(chatId, clinics) {
-//   try {
-//     const clinicsMessage = clinics
-//       .map((clinic, index) => {
-//         return `<b>${index + 1}. ${clinic.name}</b>\n${clinic.location}\n\n`;
+// analysis
+// bot.onText(/Analysis/, (msg) => {
+//   const opts = {
+//     reply_markup: {
+//       keyboard: [[{ text: "Share Contact", request_contact: true }]],
+//       resize_keyboard: true,
+//       one_time_keyboard: true,
+//     },
+//   };
+//   bot.sendMessage(msg.chat.id, "Please share your contact", opts);
+
+//   bot.on("contact", (msg) => {
+//     const userNumber = Number(msg.contact.phone_number);
+//     axios
+//       .get(`${process.env.API_URL}/analysis`)
+//       .then((response) => {
+//         const data = response.data.data;
+//         const userAnalysis = data.find((item) => item.number === userNumber);
+//         if (userAnalysis) {
+//           bot.sendMessage(
+//             msg.chat.id,
+//             `Analysis: ${JSON.stringify(userAnalysis)}`
+//           );
+//         } else {
+//           bot.sendMessage(msg.chat.id, "No analysis found for this number");
+//         }
+//         const mainMenuOpts = {
+//           reply_markup: {
+//             keyboard: [["🔬 Analysis"]],
+//             resize_keyboard: true,
+//             one_time_keyboard: true,
+//           },
+//         };
+//         bot.sendMessage(msg.chat.id, "Main menu", mainMenuOpts);
 //       })
-//       .join("\n");
-//     await bot.sendMessage(chatId, clinicsMessage, { parse_mode: "HTML" });
-//   } catch (error) {
-//     console.error("Error sending clinics:", error);
-//     bot.sendMessage(chatId, "Error sending clinics. Please try again later.");
-//   }
-// }
-
-// let currentDoctorsIndex = 0;
-// bot.onText(/doctors/, async (msg) => {
-//   const chatId = msg.chat.id;
-//   try {
-//     const doctorsResponse = await fetchDoctorsFromApi();
-//     const doctors = doctorsResponse.data;
-//     await sendDoctors(chatId, doctors[currentDoctorsIndex]);
-//   } catch (error) {
-//     console.error("Error fetching doctors:", error);
-//     bot.sendMessage(chatId, "Error fetching doctors. Please try again later.");
-//   }
+//       .catch((error) => {
+//         bot.sendMessage(msg.chat.id, "Error fetching data");
+//       });
+//   });
 // });
 
-// bot.onText(/\/docNext/, async (msg) => {
-//   const chatId = msg.chat.id;
-//   try {
-//     const doctorsResponse = await fetchDoctorsFromApi();
-//     const doctors = doctorsResponse.data;
-//     if (currentDoctorsIndex + 1 < doctors.length) {
-//       currentDoctorsIndex++;
-//       await sendDoctors(chatId, doctors[currentDoctorsIndex]);
-//     } else {
-//       bot.sendMessage(chatId, "No more doctors available.");
-//     }
-//   } catch (error) {
-//     console.error("Error fetching doctors:", error);
-//     bot.sendMessage(chatId, "Error fetching doctors. Please try again later.");
-//   }
-// });
-
-// async function sendDoctors(chatId, doctorsItem) {
-//   const doctorsMessage = `
-//     <b>${doctorsItem.name}</b>\n
-//     ${doctorsItem.work}
-//   `;
-//   try {
-//     await bot.sendMessage(chatId, doctorsMessage, { parse_mode: "HTML" });
-//   } catch (error) {
-//     console.error("Error sending doctors:", error);
-//     bot.sendMessage(chatId, "Error sending doctors. Please try again later.");
-//   }
-// }
-
-// let currentNewsIndex = 0;
-// bot.onText(/news/, async (msg) => {
-//   const chatId = msg.chat.id;
-//   try {
-//     const newsResponse = await fetchNewsFromApi();
-//     const news = newsResponse.data;
-//     await sendNews(chatId, news[currentNewsIndex]);
-//     return;
-//   } catch (error) {
-//     console.error("Error fetching news:", error);
-//     bot.sendMessage(chatId, "Error fetching news. Please try again later.");
-//   }
-// });
-
-// bot.onText(/\/newsNext/, async (msg) => {
-//   const chatId = msg.chat.id;
-//   try {
-//     const newsResponse = await fetchNewsFromApi();
-//     const news = newsResponse.data;
-//     if (currentNewsIndex + 1 < news.length) {
-//       currentNewsIndex++;
-//       await sendNews(chatId, news[currentNewsIndex]);
-//     } else {
-//       bot.sendMessage(chatId, "No more news available.");
-//     }
-//   } catch (error) {
-//     console.error("Error fetching news:", error);
-//     bot.sendMessage(chatId, "Error fetching news. Please try again later.");
-//   }
-// });
-
-// async function sendNews(chatId, newsItem) {
-//   const newsMessage = `
-//     <b>${newsItem.title}</b>\n
-//     ${newsItem.description}
-//   `;
-//   try {
-//     const imageUrl = `${newsItem.image[0].filename}`;
-//     await bot.sendPhoto(chatId, process.cwd() + "/uploads/" + imageUrl, {
-//       caption: newsMessage,
-//       parse_mode: "HTML",
+// news
+// bot.onText(/News/, (msg) => {
+//   axios
+//     .get(`${process.env.API_URL}/news`)
+//     .then((response) => {
+//       const data = response.data.data; 
+//       currentNewsIndex = 0;
+//       bot.sendMessage(
+//         msg.chat.id,
+//         `News: ${JSON.stringify(data[currentNewsIndex])}`,
+//         {
+//           reply_markup: {
+//             inline_keyboard: [
+//               [
+//                 { text: "Next", callback_data: "next" },
+//                 { text: "Prev", callback_data: "prev" },
+//               ],
+//             ],
+//           },
+//         }
+//       );
+//     })
+//     .catch((error) => {
+//       bot.sendMessage(msg.chat.id, "Error fetching data");
 //     });
-//   } catch (error) {
-//     console.error("Error sending news:", error);
-//     bot.sendMessage(chatId, "Error sending news. Please try again later.");
-//   }
-// }
+// });
+
+// bot.on("callback_query", (callbackQuery) => {
+//   const msg = callbackQuery.message;
+//   const data = callbackQuery.data;
+//   axios
+//     .get(`${process.env.API_URL}/news`)
+//     .then((response) => {
+//       const news = response.data.data;
+//       if (data === "next") {
+//         currentNewsIndex = (currentNewsIndex + 1) % news.length;
+//       } else if (data === "prev") {
+//         currentNewsIndex = (currentNewsIndex - 1 + news.length) % news.length;
+//       }
+//       bot.editMessageText(`News: ${JSON.stringify(news[currentNewsIndex])}`, {
+//         chat_id: msg.chat.id,
+//         message_id: msg.message_id,
+//         reply_markup: {
+//           inline_keyboard: [
+//             [
+//               { text: "Next", callback_data: "next" },
+//               { text: "Prev", callback_data: "prev" },
+//             ],
+//           ],
+//         },
+//       });
+//     })
+//     .catch((error) => {
+//       bot.sendMessage(msg.chat.id, "Error fetching data");
+//     });
+// });
