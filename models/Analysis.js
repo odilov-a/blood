@@ -1,17 +1,14 @@
 const mongoose = require("mongoose");
 const analysisSchame = new mongoose.Schema(
   {
-    number: {
-      type: Number,
-    },
-    name: {
-      type: String,
-    },
     analysisType: {
       type: String,
     },
     fileUrl: {
-      type: Array, 
+      type: String, 
+    },
+    fileLink: {
+      type: String,
     },
   },
   { timestamps: true }

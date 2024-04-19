@@ -7,7 +7,9 @@ const analysisRoutes = Router();
 analysisRoutes.get("/", analysisController.getAllAnalysis);
 analysisRoutes.get("/:analysisId", analysisController.getAnalysisById);
 analysisRoutes.post("/", authMiddleware, fileMiddleware, analysisController.createAnalysis);
+analysisRoutes.put("/:clientId", authMiddleware, analysisController.updateClient);
 analysisRoutes.put("/:analysisId", authMiddleware, fileMiddleware, analysisController.updateAnalysis);
 analysisRoutes.delete("/:analysisId", authMiddleware, analysisController.deleteAnalysis);
+analysisRoutes.delete("/:clientId", authMiddleware, analysisController.deleteClient);
 
 module.exports = analysisRoutes;
