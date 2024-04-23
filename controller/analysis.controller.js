@@ -40,6 +40,18 @@ exports.getAnalysisById = async (req, res) => {
   }
 };
 
+exports.getClientById = async (req, res) => {
+  try {
+    const client = await Client.findById(req.params.clientId).populate("analysis");
+    if (!client) {
+      return res.status(404).json({ message: "Client not found" });
+    }
+    return res.json({ data: client });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+};
+
 exports.createAnalysis = async (req, res) => {
   try {
     let existingClient = await Client.findOne({ number: req.body.number });
